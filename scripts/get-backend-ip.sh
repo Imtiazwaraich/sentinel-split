@@ -15,7 +15,7 @@ echo "Fetching backend service information..."
 echo ""
 
 # Option 1: Pod IP (requires direct pod-to-pod communication)
-POD_IP=$(kubectl --context eks-backend get pods -l app=backend -o jsonpath='{.items[0].status.podIP}')
+POD_IP=$(kubectl --context eks-backend get pods -l app=backend='{.items[0].status.podIP}') -o jsonpath
 echo "Backend Pod IP: ${POD_IP}"
 
 # Option 2: Service ClusterIP (internal to backend cluster)
