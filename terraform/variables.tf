@@ -5,9 +5,9 @@ variable "aws_region" {
 }
 
 variable "environment" {
-  description = "Environment name"
+  description = "Environment name (used for resource naming and tagging)"
   type        = string
-  default     = "sentinel"
+  default     = "imtiaz-sentinel"
 }
 
 variable "gateway_vpc_cidr" {
@@ -25,13 +25,13 @@ variable "backend_vpc_cidr" {
 variable "gateway_cluster_name" {
   description = "Name of the Gateway EKS cluster"
   type        = string
-  default     = "gateway"
+  default     = "imtiaz-gateway"
 }
 
 variable "backend_cluster_name" {
   description = "Name of the Backend EKS cluster"
   type        = string
-  default     = "backend"
+  default     = "imtiaz-backend"
 }
 
 variable "eks_version" {
