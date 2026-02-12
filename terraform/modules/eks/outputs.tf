@@ -38,10 +38,11 @@ output "node_iam_role_arn" {
   value       = aws_iam_role.node.arn
 }
 
-output "oidc_provider_arn" {
-  description = "ARN of the OIDC provider for IRSA"
-  value       = aws_iam_openid_connect_provider.cluster.arn
-}
+# OIDC Provider ARN - commented out due to IAM permission constraints
+# output "oidc_provider_arn" {
+#   description = "ARN of the OIDC provider for IRSA"
+#   value       = aws_iam_openid_connect_provider.cluster.arn
+# }
 
 output "cluster_certificate_authority_data" {
   description = "Certificate authority data for the cluster"
