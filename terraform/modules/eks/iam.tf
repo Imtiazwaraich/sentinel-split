@@ -13,12 +13,7 @@ resource "aws_iam_role" "cluster" {
     }]
   })
 
-  tags = merge(
-    var.tags,
-    {
-      Name = "eks-${var.cluster_name}-cluster-role"
-    }
-  )
+  # Tags removed - IAM user lacks iam:TagRole permission (scoped access constraint)
 }
 
 # Attach required policies to cluster role
@@ -47,12 +42,7 @@ resource "aws_iam_role" "node" {
     }]
   })
 
-  tags = merge(
-    var.tags,
-    {
-      Name = "eks-${var.cluster_name}-node-role"
-    }
-  )
+  # Tags removed - IAM user lacks iam:TagRole permission (scoped access constraint)
 }
 
 # Attach required policies to node role

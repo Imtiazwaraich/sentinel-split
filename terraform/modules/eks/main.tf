@@ -1,6 +1,6 @@
 # EKS Cluster
 resource "aws_eks_cluster" "main" {
-  name     = var.cluster_name
+  name     = "eks-${var.cluster_name}"
   role_arn = aws_iam_role.cluster.arn
   version  = var.cluster_version
 
@@ -29,7 +29,7 @@ resource "aws_eks_cluster" "main" {
 # EKS Node Group
 resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
-  node_group_name = "${var.cluster_name}-node-group"
+  node_group_name = "eks-${var.cluster_name}-node-group"
   node_role_arn   = aws_iam_role.node.arn
   subnet_ids      = var.subnet_ids
 

@@ -25,13 +25,13 @@ variable "backend_vpc_cidr" {
 variable "gateway_cluster_name" {
   description = "Name of the Gateway EKS cluster"
   type        = string
-  default     = "eks-gateway"
+  default     = "gateway"
 }
 
 variable "backend_cluster_name" {
   description = "Name of the Backend EKS cluster"
   type        = string
-  default     = "eks-backend"
+  default     = "backend"
 }
 
 variable "eks_version" {
