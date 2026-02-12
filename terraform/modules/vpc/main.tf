@@ -63,9 +63,13 @@ resource "aws_subnet" "private" {
   )
 }
 
-# Elastic IPs for NAT Gateways
+# Elastic IPs for# NAT Gateways (one per AZ for high availability)
+# MODIFIED: Reduced to 1 NAT Gateway to work within EIP limit (5 per region)
+# Original design: 2 NAT Gateways (HA), Required EIPs: 4 total (2 per VPC)
+# Current: 1 NAT Gateway per VPC, Required EIPs: 2 total (within limit)
+# Trade-off: Cross-AZ traffic charges, but still production-viable
 resource "aws_eip" "nat" {
-  count  = 2
+  count  = 1  # Changed from 2 due to EIP limit constraint
   domain = "vpc"
 
   tags = merge(
@@ -80,7 +84,7 @@ resource "aws_eip" "nat" {
 
 # NAT Gateways (one per AZ for high availability)
 resource "aws_nat_gateway" "main" {
-  count         = 2
+  count = 1  # Changed from 2 due to EIP limit constraint
   allocation_id = aws_eip.nat[count.index].id
   subnet_id     = aws_subnet.public[count.index].id
 
@@ -119,14 +123,11 @@ resource "aws_route_table_association" "public" {
 }
 
 # Private Route Tables (one per AZ)
+# NOTE: Both AZs now route through single NAT Gateway due to EIP limit
 resource "aws_route_table" "private" {
-  count  = 2
-  vpc_id = aws_vpc.main.id
+  count = 2
 
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.main[count.index].id
-  }
+  vpc_id = aws_vpc.main.id
 
   tags = merge(
     var.tags,
@@ -134,6 +135,15 @@ resource "aws_route_table" "private" {
       Name = "${var.name_prefix}-private-rt-${count.index + 1}"
     }
   )
+}
+
+# Route to Internet via NAT Gateway (all private subnets use NAT in AZ-1)
+resource "aws_route" "private_nat_gateway" {
+  count = 2
+
+  route_table_id         = aws_route_table.private[count.index].id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.main[0].id  # All use first NAT GW
 }
 
 # Private Route Table Associations
