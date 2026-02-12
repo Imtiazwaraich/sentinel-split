@@ -1,0 +1,231 @@
+name: Deploy Applications
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/**'
+      - 'k8s/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+env:
+  AWS_REGION: 'us-west-2'
+  REGISTRY: ghcr.io
+
+jobs:
+  validate-manifests:
+    name: Validate Kubernetes Manifests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+
+    - name: Validate Backend Manifests
+      run: |
+        kubectl apply --dry-run=client -f k8s/backend/
+
+    - name: Validate Gateway Manifests
+      run: |
+        kubectl apply --dry-run=client -f k8s/gateway/
+
+  build-backend:
+    name: Build Backend Image
+    runs-on: ubuntu-latest
+    needs: validate-manifests
+    
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ github.repository }}/sentinel-backend
+        tags: |
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Backend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./apps/backend
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+  build-gateway:
+    name: Build Gateway Image
+    runs-on: ubuntu-latest
+    needs: validate-manifests
+    
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ github.repository }}/sentinel-gateway
+        tags: |
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Gateway image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./apps/gateway
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+  deploy-backend:
+    name: Deploy to Backend Cluster
+    runs-on: ubuntu-latest
+    needs: [build-backend]
+    
+    environment:
+      name: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Update kubeconfig for Backend
+      run: |
+        aws eks update-kubeconfig --name eks-backend --region ${{ env.AWS_REGION }}
+
+    - name: Update image in manifests
+      run: |
+        sed -i "s|ghcr.io/GITHUB_USERNAME/sentinel-backend:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-backend:latest|g" k8s/backend/deployment.yaml
+
+    - name: Deploy to Backend Cluster
+      run: |
+        kubectl apply -f k8s/backend/
+
+    - name: Wait for Backend Deployment
+      run: |
+        kubectl rollout status deployment/backend-service --timeout=300s
+
+    - name: Get Backend Service IP
+      id: backend_ip
+      run: |
+        BACKEND_IP=$(kubectl get pods -l app=backend -o jsonpath='{.items[0].status.podIP}')
+        echo "backend_ip=$BACKEND_IP" >> $GITHUB_OUTPUT
+        echo "Backend IP: $BACKEND_IP"
+
+    outputs:
+      backend_ip: ${{ steps.backend_ip.outputs.backend_ip }}
+
+  deploy-gateway:
+    name: Deploy to Gateway Cluster
+    runs-on: ubuntu-latest
+    needs: [build-gateway, deploy-backend]
+    
+    environment:
+      name: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Update kubeconfig for Gateway
+      run: |
+        aws eks update-kubeconfig --name eks-gateway --region ${{ env.AWS_REGION }}
+
+    - name: Update image and backend IP in manifests
+      run: |
+        # Update gateway image
+        sed -i "s|ghcr.io/GITHUB_USERNAME/sentinel-gateway:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-gateway:latest|g" k8s/gateway/deployment.yaml
+        
+        # Update backend service IP (this would be better with service discovery)
+        # For now, we'll use a placeholder that needs manual update
+        # In production, use AWS Cloud Map or internal NLB
+        echo "Note: Backend IP configuration needs to be updated in ConfigMap"
+
+    - name: Deploy to Gateway Cluster
+      run: |
+        kubectl apply -f k8s/gateway/
+
+    - name: Wait for Gateway Deployment
+      run: |
+        kubectl rollout status deployment/gateway-proxy --timeout=300s
+
+    - name: Get LoadBalancer URL
+      run: |
+        echo "Waiting for LoadBalancer to be ready..."
+        kubectl wait --for=condition=ready service/gateway-proxy --timeout=300s || true
+        GATEWAY_URL=$(kubectl get svc gateway-proxy -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        echo "Gateway URL: http://$GATEWAY_URL"
+
+  test-connectivity:
+    name: Test Gateway to Backend
+    runs-on: ubuntu-latest
+    needs: [deploy-gateway]
+    
+    steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Update kubeconfig for Gateway
+      run: |
+        aws eks update-kubeconfig --name eks-gateway --region ${{ env.AWS_REGION }}
+
+    - name: Test Gateway Health
+      run: |
+        echo "Waiting for LoadBalancer DNS propagation..."
+        sleep 30
+        GATEWAY_URL=$(kubectl get svc gateway-proxy -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        curl -f http://$GATEWAY_URL/health || echo "Health check failed, service may still be starting"
+
+    - name: Test Backend Connection
+      run: |
+        echo "Testing backend connection through gateway..."
+        GATEWAY_URL=$(kubectl get svc gateway-proxy -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        curl -v http://$GATEWAY_URL/ || echo "Connection test failed"

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+data:
+  # Backend service endpoint (will be resolved via DNS across VPC peering)
+  # Format: <service-name>.<namespace>.svc.cluster.local
+  # We'll use the internal NLB or direct pod IPs
+  BACKEND_SERVICE_HOST: "BACKEND_INTERNAL_IP"
+  BACKEND_SERVICE_PORT: "80"
