@@ -4,6 +4,11 @@ on:
   push:
     branches: [ main ]
   pull_request:
+  permissions:
+  contents: read
+  security-events: write
+  actions: read
+
     branches: [ main ]
   schedule:
     - cron: '0 0 * * 0'  # Weekly on Sunday
