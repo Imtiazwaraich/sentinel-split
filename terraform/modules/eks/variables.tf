@@ -60,9 +60,3 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
-
-variable "node_ingress_cidrs" {
-  description = "List of CIDR blocks to allow ingress traffic to worker nodes on NodePort range"
-  type        = list(string)
-  default     = []
-}
