@@ -3,7 +3,7 @@
 set -e
 
 AWS_REGION="us-west-2"
-CLUSTER_NAME="eks-imtiaz-backend"
+CLUSTER_NAME="eks-backend"
 
 # Configure kubectl
 aws eks update-kubeconfig \

@@ -360,7 +360,7 @@ curl http://<BACKEND_POD_IP>:8080
 # Error: Connection timeout
 
 # Only works from within gateway cluster
-kubectl --context eks-imtiaz-gateway exec -it deployment/gateway-proxy -- \
+kubectl --context eks-gateway exec -it deployment/gateway-proxy -- \
   curl http://<BACKEND_POD_IP>:8080
 # Success: {"message": "Hello from backend"}
 ```

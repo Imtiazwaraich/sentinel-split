@@ -6,8 +6,8 @@ A production-ready dual-VPC, dual-EKS architecture demonstrating secure cross-cl
 
 This project implements the **Rapyd Sentinel** split architecture:
 
-- **Gateway Layer (Public)**: Internet-facing proxy in `vpc-gateway` with `eks-imtiaz-gateway` cluster
-- **Backend Layer (Private)**: Internal services in `vpc-backend` with `eks-imtiaz-backend` cluster  
+- **Gateway Layer (Public)**: Internet-facing proxy in `vpc-gateway` with `eks-gateway` cluster
+- **Backend Layer (Private)**: Internal services in `vpc-backend` with `eks-backend` cluster  
 - **Secure Communication**: VPC peering with security groups and NetworkPolicy enforcement
 
 ```
@@ -382,26 +382,26 @@ kubectl apply --dry-run=client -f k8s/gateway/
 
 ```bash
 # Check backend pod IP
-kubectl --context eks-imtiaz-backend get pods -o wide
+kubectl --context eks-backend get pods -o wide
 
 # Check security groups allow gateway VPC CIDR
-aws ec2 describe-security-groups --filters "Name=tag:Name,Values=eks-imtiaz-backend-node-sg"
+aws ec2 describe-security-groups --filters "Name=tag:Name,Values=eks-backend-node-sg"
 
 # Check NetworkPolicy
-kubectl --context eks-imtiaz-backend describe networkpolicy backend-allow-gateway
+kubectl --context eks-backend describe networkpolicy backend-allow-gateway
 
 # Test from gateway pod
-kubectl --context eks-imtiaz-gateway exec -it deployment/gateway-proxy -- curl <BACKEND_IP>:80
+kubectl --context eks-gateway exec -it deployment/gateway-proxy -- curl <BACKEND_IP>:80
 ```
 
 ### LoadBalancer stuck in pending
 
 ```bash
 # Check service
-kubectl --context eks-imtiaz-gateway describe svc gateway-proxy
+kubectl --context eks-gateway describe svc gateway-proxy
 
 # Check AWS Load Balancer Controller logs
-kubectl --context eks-imtiaz-gateway logs -n kube-system deployment/aws-load-balancer-controller
+kubectl --context eks-gateway logs -n kube-system deployment/aws-load-balancer-controller
 ```
 
 ### Cluster access denied
@@ -411,7 +411,7 @@ kubectl --context eks-imtiaz-gateway logs -n kube-system deployment/aws-load-bal
 aws sts get-caller-identity
 
 # Update kubeconfig
-aws eks update-kubeconfig --name eks-imtiaz-gateway --region us-west-2
+aws eks update-kubeconfig --name eks-gateway --region us-west-2
 ```
 
 ## 📚 Additional Resources

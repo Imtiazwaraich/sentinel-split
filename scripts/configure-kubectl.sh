@@ -9,15 +9,15 @@ AWS_REGION="us-west-2"
 
 echo "Configuring kubectl for Gateway cluster..."
 aws eks update-kubeconfig \
-    --name eks-imtiaz-gateway \
+    --name eks-gateway \
     --region ${AWS_REGION} \
-    --alias eks-imtiaz-gateway
+    --alias eks-gateway
 
 echo "Configuring kubectl for Backend cluster..."
 aws eks update-kubeconfig \
-    --name eks-imtiaz-backend \
+    --name eks-backend \
     --region ${AWS_REGION} \
-    --alias eks-imtiaz-backend
+    --alias eks-backend
 
 echo ""
 echo "✓ Successfully configured kubectl for both clusters"

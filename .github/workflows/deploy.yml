@@ -132,7 +132,7 @@ jobs:
 
     - name: Update image in manifests
       run: |
-        sed -i "s|ghcr.io/GITHUB_USERNAME/sentinel-backend:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-backend:latest|g" k8s/backend/deployment.yaml
+        sed -i "s|ghcr.io/imtiazwaraich/sentinel-backend:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-backend:latest|g" k8s/backend/deployment.yaml
 
     - name: Deploy to Backend Cluster
       run: |
@@ -173,7 +173,7 @@ jobs:
 
     - name: Update kubeconfig for Gateway
       run: |
-        aws eks update-kubeconfig --name eks-imtiaz-gateway --region ${{ env.AWS_REGION }}
+        aws eks update-kubeconfig --name eks-gateway --region ${{ env.AWS_REGION }}
 
     - name: Update image and backend IP in manifests
       run: |
@@ -215,7 +215,7 @@ jobs:
 
     - name: Update kubeconfig for Gateway
       run: |
-        aws eks update-kubeconfig --name eks-imtiaz-gateway --region ${{ env.AWS_REGION }}
+        aws eks update-kubeconfig --name eks-gateway --region ${{ env.AWS_REGION }}
 
     - name: Test Gateway Health
       run: |

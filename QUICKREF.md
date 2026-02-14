@@ -22,24 +22,24 @@ terraform destroy
 
 ```bash
 # Gateway cluster
-aws eks update-kubeconfig --name eks-imtiaz-gateway --region us-west-2
+aws eks update-kubeconfig --name eks-gateway --region us-west-2
 
 # Backend cluster
-aws eks update-kubeconfig --name eks-imtiaz-backend --region us-west-2
+aws eks update-kubeconfig --name eks-backend --region us-west-2
 
 # Switch context
-kubectl config use-context eks-imtiaz-gateway
-kubectl config use-context eks-imtiaz-backend
+kubectl config use-context eks-gateway
+kubectl config use-context eks-backend
 ```
 
 ### Testing
 
 ```bash
 # Get gateway URL
-kubectl --context eks-imtiaz-gateway get svc gateway-proxy
+kubectl --context eks-gateway get svc gateway-proxy
 
 # Test end-to-end
-GATEWAY_URL=$(kubectl --context eks-imtiaz-gateway get svc gateway-proxy -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+GATEWAY_URL=$(kubectl --context eks-gateway get svc gateway-proxy -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 curl http://$GATEWAY_URL/
 
 # Expected: {"message": "Hello from backend", ...}
@@ -51,8 +51,8 @@ curl http://$GATEWAY_URL/
 |----------|------|
 | **Gateway VPC** | gateway-vpc (10.0.0.0/16) |
 | **Backend VPC** | backend-vpc (10.1.0.0/16) |
-| **Gateway Cluster** | eks-imtiaz-gateway |
-| **Backend Cluster** | eks-imtiaz-backend |
+| **Gateway Cluster** | eks-gateway |
+| **Backend Cluster** | eks-backend |
 | **Gateway Service** | gateway-proxy (LoadBalancer) |
 | **Backend Service** | backend-service (ClusterIP) |
 
