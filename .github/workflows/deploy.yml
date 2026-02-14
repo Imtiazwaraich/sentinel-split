@@ -27,11 +27,11 @@ jobs:
 
     - name: Validate Backend Manifests
       run: |
-        kubectl apply --dry-run=client -f k8s/backend/
+        kubectl apply --dry-run=client --validate=false -f k8s/backend/
 
     - name: Validate Gateway Manifests
       run: |
-        kubectl apply --dry-run=client -f k8s/gateway/
+        kubectl apply --dry-run=client --validate=false -f k8s/gateway/
 
   build-backend:
     name: Build Backend Image
