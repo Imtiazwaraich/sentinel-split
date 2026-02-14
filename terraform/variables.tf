@@ -4,11 +4,6 @@ variable "aws_region" {
   default     = "us-west-2"
 }
 
-variable "environment" {
-  description = "Environment name (used for resource naming and tagging)"
-  type        = string
-  default     = "imtiaz-sentinel"
-}
 
 variable "gateway_vpc_cidr" {
   description = "CIDR block for Gateway VPC"
