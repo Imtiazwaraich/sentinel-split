@@ -16,7 +16,7 @@ This project implements the **Rapyd Sentinel** split architecture:
 ├─────────────────────────────────┬───────────────────────────────┤
 │  vpc-gateway (10.0.0.0/16)      │  vpc-backend (10.1.0.0/16)    │
 │  ┌───────────────────────────┐  │  ┌───────────────────────────┐│
-│  │eks-imtiaz-gateway cluster │  │  │ eks-imtiaz-backend cluster││
+│  │eks-gateway cluster │  │  │ eks-backend cluster││
 │  │  ┌─────────────────────┐  │  │  │  ┌─────────────────────┐ ││
 │  │  │  Gateway Proxy      │──┼──┼──┼─▶│  Backend Service    │ ││
 │  │  │  (NGINX)            │  │  │  │  │  (Flask)            │ ││
