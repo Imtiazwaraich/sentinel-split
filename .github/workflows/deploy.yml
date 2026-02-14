@@ -173,12 +173,12 @@ jobs:
 
     - name: Update kubeconfig for Gateway
       run: |
-        aws eks update-kubeconfig --name eks-gateway --region ${{ env.AWS_REGION }}
+        aws eks update-kubeconfig --name eks-imtiaz-gateway --region ${{ env.AWS_REGION }}
 
     - name: Update image and backend IP in manifests
       run: |
         # Update gateway image
-        sed -i "s|ghcr.io/GITHUB_USERNAME/sentinel-gateway:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-gateway:latest|g" k8s/gateway/deployment.yaml
+        sed -i "s|ghcr.io/imtiazwaraich/sentinel-gateway:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-gateway:latest|g" k8s/gateway/deployment.yaml
         
         # Update backend service IP (this would be better with service discovery)
         # For now, we'll use a placeholder that needs manual update
@@ -215,7 +215,7 @@ jobs:
 
     - name: Update kubeconfig for Gateway
       run: |
-        aws eks update-kubeconfig --name eks-gateway --region ${{ env.AWS_REGION }}
+        aws eks update-kubeconfig --name eks-imtiaz-gateway --region ${{ env.AWS_REGION }}
 
     - name: Test Gateway Health
       run: |
