@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: proxy
-        image: ghcr.io/GITHUB_USERNAME/sentinel-gateway:latest
+        image: ghcr.io/imtiazwaraich/sentinel-split/sentinel-gateway:latest
         ports:
         - containerPort: 80
           name: http
