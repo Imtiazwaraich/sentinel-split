@@ -16,7 +16,7 @@ This project implements the **Rapyd Sentinel** split architecture:
 ├─────────────────────────────────┬───────────────────────────────┤
 │  vpc-gateway (10.0.0.0/16)      │  vpc-backend (10.1.0.0/16)    │
 │  ┌───────────────────────────┐  │  ┌───────────────────────────┐│
-│  │   eks-gateway cluster     │  │  │   eks-backend cluster     ││
+│  │eks-imtiaz-gateway cluster │  │  │ eks-imtiaz-backend cluster││
 │  │  ┌─────────────────────┐  │  │  │  ┌─────────────────────┐ ││
 │  │  │  Gateway Proxy      │──┼──┼──┼─▶│  Backend Service    │ ││
 │  │  │  (NGINX)            │  │  │  │  │  (Flask)            │ ││
@@ -45,7 +45,7 @@ This project implements the **Rapyd Sentinel** split architecture:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/sentinel-split.git
+git clone https://github.com/imtiazwaraich/sentinel-split.git
 cd sentinel-split
 ```
 
@@ -382,7 +382,7 @@ kubectl apply --dry-run=client -f k8s/gateway/
 
 ```bash
 # Check backend pod IP
-kubectl --context eks-backend get pods -o wide
+kubectl --context eks-imtiaz-backend get pods -o wide
 
 # Check security groups allow gateway VPC CIDR
 aws ec2 describe-security-groups --filters "Name=tag:Name,Values=eks-imtiaz-backend-node-sg"
