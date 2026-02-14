@@ -38,7 +38,7 @@ jobs:
     - name: Terraform Init
       run: |
         cd terraform
-        terraform init -backend=false
+        terraform init
 
     - name: Terraform Validate
       run: |
@@ -150,6 +150,8 @@ jobs:
     - name: Terraform Apply
       run: |
         cd terraform
+        echo "DEBUG: Listing State"
+        terraform state list || echo "State list failed"
         terraform apply -auto-approve
 
     - name: Save Outputs
