@@ -60,6 +60,8 @@ module "eks_gateway" {
 
   tags = var.tags
 
+  node_ingress_cidrs = ["0.0.0.0/0"]
+
   depends_on = [module.vpc_peering]
 }
 

@@ -87,3 +87,15 @@ resource "aws_security_group_rule" "allow_peer_vpc" {
   cidr_blocks       = [var.peer_vpc_cidr]
   description       = "Allow traffic from peered VPC"
 }
+
+# Allow custom ingress traffic to nodes (e.g. for NodePort services)
+resource "aws_security_group_rule" "node_ingress_custom" {
+  count             = length(var.node_ingress_cidrs) > 0 ? 1 : 0
+  type              = "ingress"
+  from_port         = 30000
+  to_port           = 32767
+  protocol          = "tcp"
+  security_group_id = aws_security_group.node.id
+  cidr_blocks       = var.node_ingress_cidrs
+  description       = "Allow custom ingress traffic to nodes on NodePort range"
+}
