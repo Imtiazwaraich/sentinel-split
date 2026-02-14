@@ -32,12 +32,12 @@ output "backend_cluster_name" {
 
 output "configure_kubectl_gateway" {
   description = "Command to configure kubectl for Gateway cluster"
-  value       = "aws eks update-kubeconfig --name eks-${module.eks_gateway.cluster_name} --region ${var.aws_region}"
+  value       = "aws eks update-kubeconfig --name ${module.eks_gateway.cluster_name} --region ${var.aws_region}"
 }
 
 output "configure_kubectl_backend" {
   description = "Command to configure kubectl for Backend cluster"
-  value       = "aws eks update-kubeconfig --name eks-${module.eks_backend.cluster_name} --region ${var.aws_region}"
+  value       = "aws eks update-kubeconfig --name ${module.eks_backend.cluster_name} --region ${var.aws_region}"
 }
 
 output "vpc_peering_connection_id" {
