@@ -27,5 +27,5 @@ kubectl config get-contexts
 
 echo ""
 echo "To switch contexts, use:"
-echo "  kubectl config use-context eks-imtiaz-gateway"
-echo "  kubectl config use-context eks-imtiaz-backend"
+echo "  kubectl config use-context eks-gateway"
+echo "  kubectl config use-context eks-backend"
