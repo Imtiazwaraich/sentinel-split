@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "us-west-2"
 }
 
+variable "environment" {
+  description = "Environment name"
+  type        = string
+  default     = "production"
+}
+
 
 variable "gateway_vpc_cidr" {
   description = "CIDR block for Gateway VPC"
