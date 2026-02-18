@@ -75,9 +75,9 @@ terraform apply
 ### 4. Configure kubectl
 
 ```bash
-# Use the helper script
-chmod +x scripts/*.sh
-./scripts/configure-kubectl.sh
+# Configure kubectl for both clusters
+./scripts/configure-kubectl.sh   # Linux/macOS
+.\scripts\configure-kubectl.ps1  # Windows PowerShell
 
 # Or manually
 aws eks update-kubeconfig --name eks-sentinel-v1-gateway --region us-west-2
@@ -341,6 +341,7 @@ sentinel-split/
 │   └── security.yml          # Security scanning
 ├── scripts/                  # Helper utilities
 │   ├── configure-kubectl.sh
+│   ├── configure-kubectl.ps1     # PowerShell version for Windows
 │   ├── get-backend-ip.sh
 │   ├── get-backend-ip.ps1        # PowerShell version for Windows
 │   ├── test-connectivity.sh

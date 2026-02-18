@@ -67,7 +67,8 @@ curl http://$GATEWAY_URL/
 
 ```bash
 # Configure kubectl for both clusters
-./scripts/configure-kubectl.sh
+./scripts/configure-kubectl.sh   # Linux/macOS
+.\scripts\configure-kubectl.ps1  # Windows PowerShell
 
 # Get backend service IP
 ./scripts/get-backend-ip.sh   # Linux/macOS

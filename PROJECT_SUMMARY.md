@@ -65,7 +65,8 @@ This document summarizes the complete implementation of the Sentinel Split DevSe
 
 ### 6. Helper Scripts
 
-- ✅ `scripts/configure-kubectl.sh` - Configure both clusters
+- ✅ `scripts/configure-kubectl.sh` - Configure both clusters (Bash)
+- ✅ `scripts/configure-kubectl.ps1` - Configure both clusters (PowerShell)
 - ✅ `scripts/get-backend-ip.sh` - Retrieve backend endpoint (Bash)
 - ✅ `scripts/get-backend-ip.ps1` - Retrieve backend endpoint (PowerShell)
 - ✅ `scripts/test-connectivity.sh` - End-to-end testing
@@ -195,7 +196,7 @@ vpc-gateway (10.0.0.0/16)     vpc-backend (10.1.0.0/16)
 | **Container Images** | 2 |
 | **Kubernetes Manifests** | 6 |
 | **GitHub Workflows** | 3 |
-| **Helper Scripts** | 5 |
+| **Helper Scripts** | 6 |
 | **Documentation Files** | 4 |
 | **Total Files Created** | 50+ |
 | **Lines of Code** | ~2,500 |
