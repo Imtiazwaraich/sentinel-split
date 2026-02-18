@@ -1,6 +1,6 @@
 # Create a sample terraform.tfvars for easy customization
 aws_region         = "us-west-2"
-environment        = "sentinel"
+resource_prefix    = "imtiaz"
 gateway_vpc_cidr   = "10.0.0.0/16"
 backend_vpc_cidr   = "10.1.0.0/16"
 gateway_cluster_name = "gateway"

@@ -4,11 +4,13 @@ variable "aws_region" {
   default     = "us-west-2"
 }
 
-variable "environment" {
-  description = "Environment name"
+variable "resource_prefix" {
+  description = "Unique prefix for resources to avoid naming conflicts"
   type        = string
-  default     = "production"
+  default     = "imtiaz"
 }
+
+
 
 
 variable "gateway_vpc_cidr" {

@@ -4,7 +4,7 @@
 module "vpc_gateway" {
   source = "./modules/vpc"
 
-  name_prefix = "gateway"
+  name_prefix = "${var.resource_prefix}-gateway"
   vpc_cidr    = var.gateway_vpc_cidr
   tags        = var.tags
 }
@@ -15,7 +15,7 @@ module "vpc_gateway" {
 module "vpc_backend" {
   source = "./modules/vpc"
 
-  name_prefix = "backend"
+  name_prefix = "${var.resource_prefix}-backend"
   vpc_cidr    = var.backend_vpc_cidr
   tags        = var.tags
 }
@@ -26,7 +26,7 @@ module "vpc_backend" {
 module "vpc_peering" {
   source = "./modules/vpc-peering"
 
-  name_prefix = "gateway-backend"
+  name_prefix = "${var.resource_prefix}-gateway-backend"
 
   vpc_id_requester = module.vpc_gateway.vpc_id
   vpc_id_accepter  = module.vpc_backend.vpc_id
@@ -46,7 +46,7 @@ module "vpc_peering" {
 module "eks_gateway" {
   source = "./modules/eks"
 
-  cluster_name    = var.gateway_cluster_name
+  cluster_name    = "${var.resource_prefix}-${var.gateway_cluster_name}"
   cluster_version = var.eks_version
   vpc_id          = module.vpc_gateway.vpc_id
   subnet_ids      = module.vpc_gateway.private_subnet_ids
@@ -69,7 +69,7 @@ module "eks_gateway" {
 module "eks_backend" {
   source = "./modules/eks"
 
-  cluster_name    = var.backend_cluster_name
+  cluster_name    = "${var.resource_prefix}-${var.backend_cluster_name}"
   cluster_version = var.eks_version
   vpc_id          = module.vpc_backend.vpc_id
   subnet_ids      = module.vpc_backend.private_subnet_ids
