@@ -218,11 +218,11 @@ This enables fine-grained pod-level IAM permissions (future enhancement).
    ↓ HTTP/80
 2. Network Load Balancer (public subnets in vpc-gateway)
    ↓ TCP/80
-3. Gateway Pod (NGINX, eks-gateway cluster)
+3. Gateway Pod (NGINX, eks-sentinel-v1-gateway cluster)
    ↓ proxy_pass
 4. VPC Peering Connection
    ↓ TCP/80, source: 10.0.x.x
-5. Backend Pod (Flask, eks-backend cluster)
+5. Backend Pod (Flask, eks-sentinel-v1-backend cluster)
    ↓ JSON response
 6. [Return path reversed]
 ```

@@ -202,8 +202,8 @@ Three GitHub Actions workflows automate validation and deployment:
 **Jobs**:
 - **Validate**: `kubectl apply --dry-run=client`
 - **Build**: Build and push images to ghcr.io
-- **Deploy Backend**: Deploy to eks-backend
-- **Deploy Gateway**: Deploy to eks-gateway  
+- **Deploy Backend**: Deploy to eks-sentinel-v1-backend
+- **Deploy Gateway**: Deploy to eks-sentinel-v1-gateway  
 - **Test**: Verify end-to-end connectivity
 
 ### 3. Security Workflow (`.github/workflows/security.yml`)
@@ -346,6 +346,7 @@ sentinel-split/
 │   ├── get-backend-ip.sh
 │   ├── get-backend-ip.ps1        # PowerShell version for Windows
 │   ├── test-connectivity.sh
+│   ├── test-connectivity.ps1     # PowerShell version for Windows
 │   └── destroy.sh
 ├── ARCHITECTURE.md           # Detailed architecture docs
 └── README.md                 # This file
@@ -386,26 +387,26 @@ kubectl apply --dry-run=client -f k8s/gateway/
 
 ```bash
 # Check backend pod IP
-kubectl --context eks-backend get pods -o wide
+kubectl --context eks-sentinel-v1-backend get pods -o wide
 
 # Check security groups allow gateway VPC CIDR
-aws ec2 describe-security-groups --filters "Name=tag:Name,Values=eks-backend-node-sg"
+aws ec2 describe-security-groups --filters "Name=tag:Name,Values=eks-sentinel-v1-backend-node-sg"
 
 # Check NetworkPolicy
-kubectl --context eks-backend describe networkpolicy backend-allow-gateway
+kubectl --context eks-sentinel-v1-backend describe networkpolicy backend-allow-gateway
 
 # Test from gateway pod
-kubectl --context eks-gateway exec -it deployment/gateway-proxy -- curl <BACKEND_IP>:80
+kubectl --context eks-sentinel-v1-gateway exec -it deployment/gateway-proxy -- curl <BACKEND_IP>:80
 ```
 
 ### LoadBalancer stuck in pending
 
 ```bash
 # Check service
-kubectl --context eks-gateway describe svc gateway-proxy
+kubectl --context eks-sentinel-v1-gateway describe svc gateway-proxy
 
 # Check AWS Load Balancer Controller logs
-kubectl --context eks-gateway logs -n kube-system deployment/aws-load-balancer-controller
+kubectl --context eks-sentinel-v1-gateway logs -n kube-system deployment/aws-load-balancer-controller
 ```
 
 ### Cluster access denied
@@ -415,7 +416,7 @@ kubectl --context eks-gateway logs -n kube-system deployment/aws-load-balancer-c
 aws sts get-caller-identity
 
 # Update kubeconfig
-aws eks update-kubeconfig --name eks-gateway --region us-west-2
+aws eks update-kubeconfig --name eks-sentinel-v1-gateway --region us-west-2
 ```
 
 ## 📚 Additional Resources
