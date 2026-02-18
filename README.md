@@ -119,7 +119,8 @@ curl http://<GATEWAY-URL>/
 # Expected: {"message": "Hello from backend", ...}
 
 # Or use the helper script
-./scripts/test-connectivity.sh
+./scripts/test-connectivity.sh   # Linux/macOS
+.\scripts\test-connectivity.ps1  # Windows PowerShell
 ```
 
 ## 🏗️ Infrastructure Details

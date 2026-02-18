@@ -75,7 +75,8 @@ curl http://$GATEWAY_URL/
 .\scripts\get-backend-ip.ps1  # Windows PowerShell
 
 # Test connectivity
-./scripts/test-connectivity.sh
+./scripts/test-connectivity.sh   # Linux/macOS
+.\scripts\test-connectivity.ps1  # Windows PowerShell
 
 # Destroy all infrastructure
 ./scripts/destroy.sh
