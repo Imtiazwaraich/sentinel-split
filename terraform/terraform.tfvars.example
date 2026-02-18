@@ -1,11 +1,11 @@
 # Create a sample terraform.tfvars for easy customization
 aws_region         = "us-west-2"
-resource_prefix    = "imtiaz"
+resource_prefix    = "sentinel-v1"
 gateway_vpc_cidr   = "10.0.0.0/16"
 backend_vpc_cidr   = "10.1.0.0/16"
 gateway_cluster_name = "gateway"
 backend_cluster_name = "backend"
-eks_version        = "1.28"
+eks_version        = "1.30"
 node_instance_type = "t3.medium"
 node_desired_size  = 2
 node_min_size      = 2
