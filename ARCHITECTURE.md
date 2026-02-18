@@ -39,7 +39,7 @@ graph TB
                 PrivSub1a[10.0.2.0/20<br/>us-west-2a]
                 PrivSub1b[10.0.3.0/20<br/>us-west-2b]
                 
-                subgraph "eks-gateway"
+                subgraph "eks-sentinel-v1-gateway"
                     GWPod1[Gateway Pod]
                     GWPod2[Gateway Pod]
                 end
@@ -62,7 +62,7 @@ graph TB
                 PrivSub2a[10.1.2.0/20<br/>us-west-2a]
                 PrivSub2b[10.1.3.0/20<br/>us-west-2b]
                 
-                subgraph "eks-backend"
+                subgraph "eks-sentinel-v1-backend"
                     BEPod1[Backend Pod]
                     BEPod2[Backend Pod]
                 end
@@ -150,8 +150,8 @@ Both clusters share this configuration pattern:
 
 ```yaml
 Cluster:
-  Name: eks-{gateway|backend}
-  Version: 1.28
+  Name: eks-sentinel-v1-{gateway|backend}
+  Version: 1.30
   Endpoint Access:
     Private: true
     Public: true  # For kubectl access
@@ -177,8 +177,8 @@ Cluster:
 #### EKS Cluster Roles
 
 ```
-eks-gateway-cluster-role
-eks-backend-cluster-role
+eks-sentinel-v1-gateway-cluster-role
+eks-sentinel-v1-backend-cluster-role
 ```
 
 **Trust Policy**: Allow `eks.amazonaws.com`  
@@ -189,8 +189,8 @@ eks-backend-cluster-role
 #### EKS Node Roles
 
 ```
-eks-gateway-node-role
-eks-backend-node-role
+eks-sentinel-v1-gateway-node-role
+eks-sentinel-v1-backend-node-role
 ```
 
 **Trust Policy**: Allow `ec2.amazonaws.com`  
@@ -360,7 +360,7 @@ curl http://<BACKEND_POD_IP>:8080
 # Error: Connection timeout
 
 # Only works from within gateway cluster
-kubectl --context eks-gateway exec -it deployment/gateway-proxy -- \
+kubectl --context eks-sentinel-v1-gateway exec -it deployment/gateway-proxy -- \
   curl http://<BACKEND_POD_IP>:8080
 # Success: {"message": "Hello from backend"}
 ```
@@ -542,8 +542,8 @@ private_route_table_ids → List of private route table IDs
 ```hcl
 module "eks_example" {
   source          = "./modules/eks"
-  cluster_name    = "eks-example"
-  cluster_version = "1.28"
+  cluster_name    = "eks-sentinel-v1-example"
+  cluster_version = "1.30"
   vpc_id          = module.vpc.vpc_id
   subnet_ids      = module.vpc.private_subnet_ids
   

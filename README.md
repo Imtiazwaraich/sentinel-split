@@ -6,8 +6,8 @@ A production-ready dual-VPC, dual-EKS architecture demonstrating secure cross-cl
 
 This project implements the **Rapyd Sentinel** split architecture:
 
-- **Gateway Layer (Public)**: Internet-facing proxy in `vpc-gateway` with `eks-gateway` cluster
-- **Backend Layer (Private)**: Internal services in `vpc-backend` with `eks-backend` cluster  
+- **Gateway Layer (Public)**: Internet-facing proxy in `vpc-gateway` with `eks-sentinel-v1-gateway` cluster
+- **Backend Layer (Private)**: Internal services in `vpc-backend` with `eks-sentinel-v1-backend` cluster  
 - **Secure Communication**: VPC peering with security groups and NetworkPolicy enforcement
 
 ```
@@ -16,7 +16,7 @@ This project implements the **Rapyd Sentinel** split architecture:
 ├─────────────────────────────────┬───────────────────────────────┤
 │  vpc-gateway (10.0.0.0/16)      │  vpc-backend (10.1.0.0/16)    │
 │  ┌───────────────────────────┐  │  ┌───────────────────────────┐│
-│  │eks-gateway cluster │  │  │ eks-backend cluster││
+│  │eks-sentinel-v1-gateway cluster │  │  │ eks-sentinel-v1-backend cluster││
 │  │  ┌─────────────────────┐  │  │  │  ┌─────────────────────┐ ││
 │  │  │  Gateway Proxy      │──┼──┼──┼─▶│  Backend Service    │ ││
 │  │  │  (NGINX)            │  │  │  │  │  (Flask)            │ ││
@@ -35,7 +35,7 @@ This project implements the **Rapyd Sentinel** split architecture:
 
 - **AWS Account** with provided credentials (scoped IAM permissions)
 - **Terraform** >= 1.5.0
-- **kubectl** >= 1.28
+- **kubectl** >= 1.30
 - **AWS CLI** >= 2.0
 - **Docker** (for local testing)
 - **Git** and **GitHub** account (for CI/CD)
@@ -80,8 +80,8 @@ chmod +x scripts/*.sh
 ./scripts/configure-kubectl.sh
 
 # Or manually
-aws eks update-kubeconfig --name eks-gateway --region us-west-2
-aws eks update-kubeconfig --name eks-backend --region us-west-2
+aws eks update-kubeconfig --name eks-sentinel-v1-gateway --region us-west-2
+aws eks update-kubeconfig --name eks-sentinel-v1-backend --region us-west-2
 ```
 
 ### 5. Deploy Applications
@@ -96,7 +96,7 @@ aws eks update-kubeconfig --name eks-backend --region us-west-2
 
 Deploy backend:
 ```bash
-kubectl --context eks-backend apply -f k8s/backend/
+kubectl --context eks-sentinel-v1-backend apply -f k8s/backend/
 ```
 
 Get backend IP and update gateway config:
@@ -104,14 +104,14 @@ Get backend IP and update gateway config:
 ./scripts/get-backend-ip.sh
 
 # Update k8s/gateway/configmap.yaml with the backend IP
-kubectl --context eks-gateway apply -f k8s/gateway/
+kubectl --context eks-sentinel-v1-gateway apply -f k8s/gateway/
 ```
 
 ### 6. Test Connectivity
 
 ```bash
 # Get gateway LoadBalancer URL
-kubectl --context eks-gateway get svc gateway-proxy
+kubectl --context eks-sentinel-v1-gateway get svc gateway-proxy
 
 # Test (wait 2-3 mins for LB)
 curl http://<GATEWAY-URL>/
@@ -137,7 +137,7 @@ curl http://<GATEWAY-URL>/
 
 | Setting | Value |
 |---------|-------|
-| **Kubernetes Version** | 1.28 |
+| **Kubernetes Version** | 1.30 |
 | **Node Instance Type** | t3.medium |
 | **Desired Capacity** | 2 nodes per cluster |
 | **Min/Max Size** | 2-4 nodes |

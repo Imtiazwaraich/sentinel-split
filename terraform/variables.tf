@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "resource_prefix" {
   description = "Unique prefix for resources to avoid naming conflicts"
   type        = string
-  default     = "imtiaz"
+  default     = "sentinel-v1"
 }
 
 

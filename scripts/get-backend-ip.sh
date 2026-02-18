@@ -8,18 +8,18 @@ set -e
 AWS_REGION="us-west-2"
 
 # Configure kubectl for backend cluster
-aws eks update-kubeconfig --name eks-backend --region ${AWS_REGION} --alias eks-backend >/dev/null 2>&1
+aws eks update-kubeconfig --name eks-sentinel-v1-backend --region ${AWS_REGION} --alias eks-sentinel-v1-backend >/dev/null 2>&1
 
 # Get backend service endpoint
 echo "Fetching backend service information..."
 echo ""
 
 # Option 1: Pod IP (requires direct pod-to-pod communication)
-POD_IP=$(kubectl --context eks-backend get pods -l app=backend='{.items[0].status.podIP}') -o jsonpath
+POD_IP=$(kubectl --context eks-sentinel-v1-backend get pods -l app=backend -o jsonpath='{.items[0].status.podIP}')
 echo "Backend Pod IP: ${POD_IP}"
 
 # Option 2: Service ClusterIP (internal to backend cluster)
-SERVICE_IP=$(kubectl --context eks-backend get svc backend-service -o jsonpath='{.spec.clusterIP}')
+SERVICE_IP=$(kubectl --context eks-sentinel-v1-backend get svc backend-service -o jsonpath='{.spec.clusterIP}')
 echo "Backend Service IP: ${SERVICE_IP}"
 
 echo ""

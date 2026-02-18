@@ -11,23 +11,23 @@ echo "Testing Sentinel Split connectivity..."
 echo ""
 
 # Configure kubectl contexts
-aws eks update-kubeconfig --name eks-gateway --region ${AWS_REGION} --alias eks-gateway >/dev/null 2>&1
-aws eks update-kubeconfig --name eks-backend --region ${AWS_REGION} --alias eks-backend >/dev/null 2>&1
+aws eks update-kubeconfig --name eks-sentinel-v1-gateway --region ${AWS_REGION} --alias eks-sentinel-v1-gateway >/dev/null 2>&1
+aws eks update-kubeconfig --name eks-sentinel-v1-backend --region ${AWS_REGION} --alias eks-sentinel-v1-backend >/dev/null 2>&1
 
 # Get backend pod IP
 echo "1. Checking backend service..."
-BACKEND_IP=$(kubectl --context eks-backend get pods -l app=backend -o jsonpath='{.items[0].status.podIP}')
+BACKEND_IP=$(kubectl --context eks-sentinel-v1-backend get pods -l app=backend -o jsonpath='{.items[0].status.podIP}')
 echo "   Backend Pod IP: ${BACKEND_IP}"
 
 # Test backend directly from backend cluster
 echo ""
 echo "2. Testing backend health (from backend cluster)..."
-kubectl --context eks-backend exec -it deployment/backend-service -- curl -s http://localhost:8080/health
+kubectl --context eks-sentinel-v1-backend exec -it deployment/backend-service -- curl -s http://localhost:8080/health
 echo ""
 
 # Get gateway LoadBalancer URL
 echo "3. Checking gateway LoadBalancer..."
-GATEWAY_URL=$(kubectl --context eks-gateway get svc gateway-proxy -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+GATEWAY_URL=$(kubectl --context eks-sentinel-v1-gateway get svc gateway-proxy -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 echo "   Gateway URL: http://${GATEWAY_URL}"
 
 # Test gateway health

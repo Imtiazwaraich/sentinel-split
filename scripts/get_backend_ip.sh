@@ -3,7 +3,7 @@
 set -e
 
 AWS_REGION="us-west-2"
-CLUSTER_NAME="eks-backend"
+CLUSTER_NAME="eks-sentinel-v1-backend"
 
 # Configure kubectl
 aws eks update-kubeconfig \

@@ -38,12 +38,12 @@ This document summarizes the complete implementation of the Sentinel Split DevSe
 
 ### 3. Kubernetes Manifests
 
-#### Backend (eks-backend cluster)
+#### Backend (eks-sentinel-v1-backend cluster)
 - ✅ `k8s/backend/deployment.yaml` - 2 replicas, health probes
 - ✅ `k8s/backend/service.yaml` - ClusterIP (internal only)
 - ✅ `k8s/backend/networkpolicy.yaml` - Restrict to 10.0.0.0/16
 
-#### Gateway (eks-gateway cluster)
+#### Gateway (eks-sentinel-v1-gateway cluster)
 - ✅ `k8s/gateway/deployment.yaml` - 2 replicas, ConfigMap env
 - ✅ `k8s/gateway/service.yaml` - LoadBalancer (public NLB)
 - ✅ `k8s/gateway/configmap.yaml` - Backend endpoint config
@@ -235,7 +235,7 @@ vpc-gateway (10.0.0.0/16)     vpc-backend (10.1.0.0/16)
 
 - **IaC**: Terraform 1.5+
 - **Cloud**: AWS (VPC, EKS, EC2, NLB)
-- **Kubernetes**: 1.28
+- **Kubernetes**: 1.30
 - **Container Runtime**: Docker
 - **Backend**: Python 3.11 + Flask
 - **Proxy**: NGINX (Alpine)
