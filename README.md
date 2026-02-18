@@ -101,7 +101,8 @@ kubectl --context eks-sentinel-v1-backend apply -f k8s/backend/
 
 Get backend IP and update gateway config:
 ```bash
-./scripts/get-backend-ip.sh
+./scripts/get-backend-ip.sh  # Linux/macOS
+.\scripts\get-backend-ip.ps1 # Windows PowerShell
 
 # Update k8s/gateway/configmap.yaml with the backend IP
 kubectl --context eks-sentinel-v1-gateway apply -f k8s/gateway/
@@ -341,6 +342,7 @@ sentinel-split/
 ├── scripts/                  # Helper utilities
 │   ├── configure-kubectl.sh
 │   ├── get-backend-ip.sh
+│   ├── get-backend-ip.ps1        # PowerShell version for Windows
 │   ├── test-connectivity.sh
 │   └── destroy.sh
 ├── ARCHITECTURE.md           # Detailed architecture docs

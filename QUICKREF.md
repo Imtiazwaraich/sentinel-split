@@ -70,7 +70,8 @@ curl http://$GATEWAY_URL/
 ./scripts/configure-kubectl.sh
 
 # Get backend service IP
-./scripts/get-backend-ip.sh
+./scripts/get-backend-ip.sh   # Linux/macOS
+.\scripts\get-backend-ip.ps1  # Windows PowerShell
 
 # Test connectivity
 ./scripts/test-connectivity.sh
