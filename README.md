@@ -86,25 +86,36 @@ aws eks update-kubeconfig --name eks-sentinel-v1-backend --region us-west-2
 
 ### 5. Deploy Applications
 
-**Important**: Update image references in manifests first:
+**Step A — Build and push Docker images** (required before `kubectl apply`):
 
 ```bash
-# Replace GITHUB_USERNAME with your GitHub username in:
-# - k8s/backend/deployment.yaml
-# - k8s/gateway/deployment.yaml
+# Log in to GitHub Container Registry
+echo $GITHUB_TOKEN | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+
+# Build and push backend image
+docker build -t ghcr.io/imtiazwaraich/sentinel-split/sentinel-backend:latest ./apps/backend
+docker push ghcr.io/imtiazwaraich/sentinel-split/sentinel-backend:latest
+
+# Build and push gateway image
+docker build -t ghcr.io/imtiazwaraich/sentinel-split/sentinel-gateway:latest ./apps/gateway
+docker push ghcr.io/imtiazwaraich/sentinel-split/sentinel-gateway:latest
 ```
 
-Deploy backend:
+> **Note**: If using CI/CD (GitHub Actions), the `build-backend` and `build-gateway` jobs handle this automatically.
+
+**Step B — Deploy backend**:
 ```bash
 kubectl --context eks-sentinel-v1-backend apply -f k8s/backend/
 ```
 
-Get backend IP and update gateway config:
+**Step C — Get backend IP and deploy gateway**:
 ```bash
+# Get backend pod IP (auto-populated by CI/CD; for manual deploy use the script)
 ./scripts/get-backend-ip.sh  # Linux/macOS
 .\scripts\get-backend-ip.ps1 # Windows PowerShell
 
-# Update k8s/gateway/configmap.yaml with the backend IP
+# Update k8s/gateway/configmap.yaml BACKEND_SERVICE_HOST with the IP from above
+# Then deploy the gateway
 kubectl --context eks-sentinel-v1-gateway apply -f k8s/gateway/
 ```
 
@@ -200,10 +211,10 @@ Three GitHub Actions workflows automate validation and deployment:
 **Triggers**: Push to `main`, PRs affecting `apps/` or `k8s/`
 
 **Jobs**:
-- **Validate**: `kubectl apply --dry-run=client`
+- **Validate**: `kubeconform` offline schema validation (no cluster required — fixes the connection-refused error)
 - **Build**: Build and push images to ghcr.io
-- **Deploy Backend**: Deploy to eks-sentinel-v1-backend
-- **Deploy Gateway**: Deploy to eks-sentinel-v1-gateway  
+- **Deploy Backend**: Deploy to `eks-sentinel-v1-backend`
+- **Deploy Gateway**: Deploy to `eks-sentinel-v1-gateway` (backend IP auto-injected into ConfigMap)
 - **Test**: Verify end-to-end connectivity
 
 ### 3. Security Workflow (`.github/workflows/security.yml`)
@@ -226,7 +237,7 @@ GITHUB_TOKEN  # Auto-provided
 
 ## 💰 Cost Optimization
 
-**Monthly cost estimate** (~$200-250 USD):
+**Monthly cost estimate** (~$350/month):
 
 | Resource | Quantity | Monthly Cost |
 |----------|----------|--------------|
@@ -365,9 +376,13 @@ terraform fmt -check -recursive
 terraform validate
 tflint --recursive
 
-# Kubernetes manifests
-kubectl apply --dry-run=client -f k8s/backend/
-kubectl apply --dry-run=client -f k8s/gateway/
+# Kubernetes manifests — offline validation (no cluster needed)
+# Install kubeconform: https://github.com/yannh/kubeconform
+kubeconform -strict -summary -kubernetes-version 1.30.0 k8s/backend/
+kubeconform -strict -summary -kubernetes-version 1.30.0 k8s/gateway/
+
+# NOTE: `kubectl apply --dry-run=client` requires a live cluster connection.
+# Use kubeconform above for CI or local validation without a cluster.
 ```
 
 ### Manual Validation Checklist

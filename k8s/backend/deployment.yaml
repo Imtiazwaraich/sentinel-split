@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ghcr.io/imtiazwaraich/sentinel-backend:latest
+        image: ghcr.io/imtiazwaraich/sentinel-split/sentinel-backend:latest
         ports:
         - containerPort: 8080
           name: http

@@ -17,27 +17,38 @@ jobs:
   validate-manifests:
     name: Validate Kubernetes Manifests
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup kubectl
-      uses: azure/setup-kubectl@v3
+    - name: Install kubeconform
+      run: |
+        curl -sSL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz \
+          | tar xz -C /usr/local/bin kubeconform
+        kubeconform -v
 
     - name: Validate Backend Manifests
       run: |
-        kubectl apply --dry-run=client --validate=false -f k8s/backend/
+        kubeconform \
+          -strict \
+          -summary \
+          -kubernetes-version 1.30.0 \
+          k8s/backend/
 
     - name: Validate Gateway Manifests
       run: |
-        kubectl apply --dry-run=client --validate=false -f k8s/gateway/
+        kubeconform \
+          -strict \
+          -summary \
+          -kubernetes-version 1.30.0 \
+          k8s/gateway/
 
   build-backend:
     name: Build Backend Image
     runs-on: ubuntu-latest
     needs: validate-manifests
-    
+
     permissions:
       contents: read
       packages: write
@@ -74,7 +85,7 @@ jobs:
     name: Build Gateway Image
     runs-on: ubuntu-latest
     needs: validate-manifests
-    
+
     permissions:
       contents: read
       packages: write
@@ -111,7 +122,7 @@ jobs:
     name: Deploy to Backend Cluster
     runs-on: ubuntu-latest
     needs: [build-backend]
-    
+
     environment:
       name: production
 
@@ -128,11 +139,11 @@ jobs:
 
     - name: Update kubeconfig for Backend
       run: |
-        aws eks update-kubeconfig --name eks-backend --region ${{ env.AWS_REGION }}
+        aws eks update-kubeconfig --name eks-sentinel-v1-backend --region ${{ env.AWS_REGION }}
 
     - name: Update image in manifests
       run: |
-        sed -i "s|ghcr.io/imtiazwaraich/sentinel-backend:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-backend:latest|g" k8s/backend/deployment.yaml
+        sed -i "s|ghcr.io/imtiazwaraich/sentinel-split/sentinel-backend:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-backend:latest|g" k8s/backend/deployment.yaml
 
     - name: Deploy to Backend Cluster
       run: |
@@ -156,7 +167,7 @@ jobs:
     name: Deploy to Gateway Cluster
     runs-on: ubuntu-latest
     needs: [build-gateway, deploy-backend]
-    
+
     environment:
       name: production
 
@@ -173,17 +184,22 @@ jobs:
 
     - name: Update kubeconfig for Gateway
       run: |
-        aws eks update-kubeconfig --name eks-gateway --region ${{ env.AWS_REGION }}
+        aws eks update-kubeconfig --name eks-sentinel-v1-gateway --region ${{ env.AWS_REGION }}
 
     - name: Update image and backend IP in manifests
       run: |
         # Update gateway image
-        sed -i "s|ghcr.io/imtiazwaraich/sentinel-gateway:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-gateway:latest|g" k8s/gateway/deployment.yaml
-        
-        # Update backend service IP (this would be better with service discovery)
-        # For now, we'll use a placeholder that needs manual update
-        # In production, use AWS Cloud Map or internal NLB
-        echo "Note: Backend IP configuration needs to be updated in ConfigMap"
+        sed -i "s|ghcr.io/imtiazwaraich/sentinel-split/sentinel-gateway:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-gateway:latest|g" k8s/gateway/deployment.yaml
+
+        # Update backend pod IP in ConfigMap from deploy-backend output
+        BACKEND_IP="${{ needs.deploy-backend.outputs.backend_ip }}"
+        if [ -n "$BACKEND_IP" ]; then
+          sed -i "s|BACKEND_SERVICE_HOST:.*|BACKEND_SERVICE_HOST: \"$BACKEND_IP\"|g" k8s/gateway/configmap.yaml
+          echo "Updated ConfigMap with backend IP: $BACKEND_IP"
+        else
+          echo "WARNING: Backend IP is empty. Verify backend deployment completed successfully."
+          exit 1
+        fi
 
     - name: Deploy to Gateway Cluster
       run: |
@@ -204,7 +220,7 @@ jobs:
     name: Test Gateway to Backend
     runs-on: ubuntu-latest
     needs: [deploy-gateway]
-    
+
     steps:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -215,7 +231,7 @@ jobs:
 
     - name: Update kubeconfig for Gateway
       run: |
-        aws eks update-kubeconfig --name eks-gateway --region ${{ env.AWS_REGION }}
+        aws eks update-kubeconfig --name eks-sentinel-v1-gateway --region ${{ env.AWS_REGION }}
 
     - name: Test Gateway Health
       run: |

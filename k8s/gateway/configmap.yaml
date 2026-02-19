@@ -3,8 +3,9 @@ kind: ConfigMap
 metadata:
   name: gateway-config
 data:
-  # Backend service endpoint (will be resolved via DNS across VPC peering)
-  # Format: <service-name>.<namespace>.svc.cluster.local
-  # We'll use the internal NLB or direct pod IPs
-  BACKEND_SERVICE_HOST: "BACKEND_INTERNAL_IP"
+  # Backend pod IP reachable via VPC peering (10.1.x.x range).
+  # In CI/CD: automatically injected by deploy.yml from `kubectl get pods -l app=backend`.
+  # For manual deploy: run `./scripts/get-backend-ip.sh` and replace the placeholder below.
+  # Production alternative: use AWS Cloud Map for DNS-based service discovery.
+  BACKEND_SERVICE_HOST: "REPLACE_WITH_BACKEND_POD_IP"
   BACKEND_SERVICE_PORT: "8080"
