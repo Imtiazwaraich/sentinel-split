@@ -143,7 +143,11 @@ jobs:
 
     - name: Update image in manifests
       run: |
-        sed -i "s|ghcr.io/imtiazwaraich/sentinel-split/sentinel-backend:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-backend:latest|g" k8s/backend/deployment.yaml
+        # Force lowercase — ${{ github.repository }} preserves GitHub username case (e.g. Imtiazwaraich)
+        # but OCI image names must be all lowercase (RFC 3986)
+        IMAGE=$(echo "${{ env.REGISTRY }}/${{ github.repository }}/sentinel-backend:latest" | tr '[:upper:]' '[:lower:]')
+        sed -i "s|ghcr.io/imtiazwaraich/sentinel-split/sentinel-backend:latest|${IMAGE}|g" k8s/backend/deployment.yaml
+        echo "Backend image set to: ${IMAGE}"
 
     - name: Create GHCR pull secret
       run: |
@@ -197,8 +201,11 @@ jobs:
 
     - name: Update image and backend IP in manifests
       run: |
-        # Update gateway image
-        sed -i "s|ghcr.io/imtiazwaraich/sentinel-split/sentinel-gateway:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-gateway:latest|g" k8s/gateway/deployment.yaml
+        # Force lowercase — ${{ github.repository }} preserves GitHub username case
+        # but OCI image names must be all lowercase (RFC 3986)
+        IMAGE=$(echo "${{ env.REGISTRY }}/${{ github.repository }}/sentinel-gateway:latest" | tr '[:upper:]' '[:lower:]')
+        sed -i "s|ghcr.io/imtiazwaraich/sentinel-split/sentinel-gateway:latest|${IMAGE}|g" k8s/gateway/deployment.yaml
+        echo "Gateway image set to: ${IMAGE}"
 
         # Update backend pod IP in ConfigMap from deploy-backend output
         BACKEND_IP="${{ needs.deploy-backend.outputs.backend_ip }}"
