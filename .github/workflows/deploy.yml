@@ -145,6 +145,15 @@ jobs:
       run: |
         sed -i "s|ghcr.io/imtiazwaraich/sentinel-split/sentinel-backend:latest|${{ env.REGISTRY }}/${{ github.repository }}/sentinel-backend:latest|g" k8s/backend/deployment.yaml
 
+    - name: Create GHCR pull secret
+      run: |
+        # Create (or update) docker-registry secret so EKS nodes can pull from private GHCR
+        kubectl create secret docker-registry ghcr-credentials \
+          --docker-server=ghcr.io \
+          --docker-username=${{ github.actor }} \
+          --docker-password=${{ secrets.GITHUB_TOKEN }} \
+          --dry-run=client -o yaml | kubectl apply -f -
+
     - name: Deploy to Backend Cluster
       run: |
         kubectl apply -f k8s/backend/
@@ -200,6 +209,15 @@ jobs:
           echo "WARNING: Backend IP is empty. Verify backend deployment completed successfully."
           exit 1
         fi
+
+    - name: Create GHCR pull secret
+      run: |
+        # Create (or update) docker-registry secret so EKS nodes can pull from private GHCR
+        kubectl create secret docker-registry ghcr-credentials \
+          --docker-server=ghcr.io \
+          --docker-username=${{ github.actor }} \
+          --docker-password=${{ secrets.GITHUB_TOKEN }} \
+          --dry-run=client -o yaml | kubectl apply -f -
 
     - name: Deploy to Gateway Cluster
       run: |

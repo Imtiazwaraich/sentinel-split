@@ -7,6 +7,7 @@ metadata:
     tier: internal
 spec:
   replicas: 2
+  progressDeadlineSeconds: 900   # 15 min — allows time for node image pull + startup
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -21,6 +22,8 @@ spec:
         app: backend
         tier: internal
     spec:
+      imagePullSecrets:
+      - name: ghcr-credentials   # Created by deploy.yml before kubectl apply
       containers:
       - name: backend
         image: ghcr.io/imtiazwaraich/sentinel-split/sentinel-backend:latest

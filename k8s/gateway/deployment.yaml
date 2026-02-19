@@ -7,6 +7,7 @@ metadata:
     tier: frontend
 spec:
   replicas: 2
+  progressDeadlineSeconds: 900   # 15 min — allows time for node image pull + startup
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -21,6 +22,8 @@ spec:
         app: gateway
         tier: frontend
     spec:
+      imagePullSecrets:
+      - name: ghcr-credentials   # Created by deploy.yml before kubectl apply
       containers:
       - name: proxy
         image: ghcr.io/imtiazwaraich/sentinel-split/sentinel-gateway:latest
