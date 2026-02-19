@@ -7,6 +7,11 @@ metadata:
     tier: internal
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0        # Never create extra pods — avoids node capacity overflow on t3.medium
+      maxUnavailable: 1  # Take down 1 old pod first, then bring up 1 new pod
   selector:
     matchLabels:
       app: backend
@@ -42,5 +47,6 @@ spec:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 5
+          initialDelaySeconds: 15
           periodSeconds: 5
+          failureThreshold: 6

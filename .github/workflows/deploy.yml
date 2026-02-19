@@ -151,7 +151,7 @@ jobs:
 
     - name: Wait for Backend Deployment
       run: |
-        kubectl rollout status deployment/backend-service --timeout=300s
+        kubectl rollout status deployment/backend-service --timeout=600s
 
     - name: Get Backend Service IP
       id: backend_ip
@@ -207,7 +207,7 @@ jobs:
 
     - name: Wait for Gateway Deployment
       run: |
-        kubectl rollout status deployment/gateway-proxy --timeout=300s
+        kubectl rollout status deployment/gateway-proxy --timeout=600s
 
     - name: Get LoadBalancer URL
       run: |
