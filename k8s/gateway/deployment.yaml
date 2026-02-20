@@ -40,6 +40,10 @@ spec:
           limits:
             cpu: 500m
             memory: 256Mi
+        volumeMounts:
+        - name: nginx-template-vol
+          mountPath: /etc/nginx/nginx.conf.template
+          subPath: nginx.conf.template
         livenessProbe:
           httpGet:
             path: /health
@@ -53,3 +57,7 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 5
           failureThreshold: 6
+      volumes:
+      - name: nginx-template-vol
+        configMap:
+          name: nginx-template

@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-template
+data:
+  nginx.conf.template: |
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        upstream backend {
+            # These variables are substituted by envsubst in the entrypoint script
+            server ${BACKEND_SERVICE_HOST}:${BACKEND_SERVICE_PORT};
+        }
+
+        server {
+            listen 80;
+            server_name _;
+
+            location / {
+                proxy_pass http://backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                
+                # Add custom header to identify gateway
+                add_header X-Proxied-By "Sentinel-Gateway" always;
+            }
+
+            location /health {
+                access_log off;
+                return 200 "Gateway healthy\n";
+                add_header Content-Type text/plain;
+            }
+        }
+    }
