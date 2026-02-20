@@ -116,6 +116,7 @@ kubectl --context eks-sentinel-v1-backend apply -f k8s/backend/
 
 # Update k8s/gateway/configmap.yaml BACKEND_SERVICE_HOST with the IP from above
 # Then deploy the gateway
+kubectl --context eks-sentinel-v1-gateway apply -f k8s/gateway/nginx-template-configmap.yaml
 kubectl --context eks-sentinel-v1-gateway apply -f k8s/gateway/
 ```
 
@@ -346,7 +347,8 @@ sentinel-split/
 │   └── gateway/              # Gateway K8s manifests
 │       ├── deployment.yaml
 │       ├── service.yaml
-│       └── configmap.yaml
+│       ├── configmap.yaml
+│       └── nginx-template-configmap.yaml
 ├── .github/workflows/        # CI/CD pipelines
 │   ├── terraform.yml         # Terraform automation
 │   ├── deploy.yml            # App deployment

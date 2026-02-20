@@ -247,6 +247,7 @@ data:
 - VPC peering allows direct IP routing
 - Security groups and NetworkPolicy enforce access control
 - Gateway pods can reach backend pod IPs via peering routes
+- **Configuration Management**: Nginx configuration template is managed via the `nginx-template` ConfigMap and mounted into the pod, providing flexibility without image rebuilds.
 
 **Production Improvement**:
 ```yaml

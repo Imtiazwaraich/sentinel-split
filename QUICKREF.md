@@ -90,7 +90,7 @@ curl http://$GATEWAY_URL/
 | `apps/backend/` | Backend application (Flask) |
 | `apps/gateway/` | Gateway proxy (NGINX) |
 | `k8s/backend/` | Backend Kubernetes manifests |
-| `k8s/gateway/` | Gateway Kubernetes manifests |
+| `k8s/gateway/` | Gateway Kubernetes manifests (inc. nginx-template) |
 | `.github/workflows/` | CI/CD pipelines |
 
 ## Network Architecture

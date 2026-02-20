@@ -110,6 +110,8 @@ kubectl --context eks-sentinel-v1-backend rollout status deployment/backend-serv
 
 # 4. Update configmap and deploy gateway
 # Edit k8s/gateway/configmap.yaml: set BACKEND_SERVICE_HOST to the IP from step 3
+# Deploy the configuration template first, then the gateway
+kubectl --context eks-sentinel-v1-gateway apply -f k8s/gateway/nginx-template-configmap.yaml
 kubectl --context eks-sentinel-v1-gateway apply -f k8s/gateway/
 kubectl --context eks-sentinel-v1-gateway rollout status deployment/gateway-proxy
 ```

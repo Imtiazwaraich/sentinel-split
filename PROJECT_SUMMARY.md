@@ -44,9 +44,10 @@ This document summarizes the complete implementation of the Sentinel Split DevSe
 - ✅ `k8s/backend/networkpolicy.yaml` - Restrict to 10.0.0.0/16
 
 #### Gateway (eks-sentinel-v1-gateway cluster)
-- ✅ `k8s/gateway/deployment.yaml` - 2 replicas, ConfigMap env
+- ✅ `k8s/gateway/deployment.yaml` - 2 replicas, ConfigMap env & volume mount
 - ✅ `k8s/gateway/service.yaml` - LoadBalancer (public NLB)
 - ✅ `k8s/gateway/configmap.yaml` - Backend endpoint config
+- ✅ `k8s/gateway/nginx-template-configmap.yaml` - Nginx configuration template
 
 ### 4. CI/CD Pipeline (GitHub Actions)
 
