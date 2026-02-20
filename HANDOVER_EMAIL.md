@@ -1,4 +1,4 @@
-# Sentinel Split — Project Handover Email
+# Sentinel Split — Project Handover
 
 ---
 
